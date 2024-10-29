@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="{% static 'products/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Product List</h1>
+    </header>
+    <main>
+        <div class="product-grid">
+            {% for product in products %}
+                <div class="product-card">
+    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description|truncatewords:10 }}</p>
+    <p class="price">$ {{ product.price }}</p>
+    <a href="{% url 'product_detail' product.pk %}" class="btn">View Details</a>
+</div>
+
+            {% endfor %}
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 My Shop</p>
+    </footer>
+</body>
+</html>
