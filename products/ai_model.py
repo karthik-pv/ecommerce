@@ -22,7 +22,7 @@ class GeminiClient:
     def __init__(self):
         if self._initialized:
             return
-        api_key = "AIzaSyCadPuPUQvtH-NsETbzmgooO9OT2NkAt1s"
+        api_key = ""
 
         if not api_key:
             raise ValueError(
