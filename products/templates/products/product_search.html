@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Search</title>
+    <link rel="stylesheet" href="{% static 'products/styles.css' %}" />
+  </head>
+  <body>
+    <header>
+      <h1>Product Search</h1>
+    </header>
+
+    <main>
+      <div class="search-container">
+        <!-- Search Form -->
+        <form
+          method="GET"
+          action="{% url 'product_search' %}"
+          class="search-form"
+        >
+          <input
+            type="text"
+            name="query"
+            value="{{ query }}"
+            placeholder="Search products..."
+            class="search-input"
+          />
+          <button type="submit" class="search-button">Search</button>
+        </form>
+
+        <!-- Results Section -->
+        {% if query %} {% if results %}
+        <div class="results-grid">
+          {% for result in results %}
+          <div class="product-card">
+            {% if result.image_url %}
+            <img
+              src="{{ result.image_url }}"
+              alt="{{ result.name }}"
+              class="product-image"
+            />
+            {% endif %}
+
+            <div class="product-info">
+              <h2 class="product-name">{{ result.name }}</h2>
+              <p class="product-description">
+                {{ result.description|truncatewords:30 }}
+              </p>
+              <p class="product-price">${{ result.price }}</p>
+
+              <a
+                href="{% url 'product_detail' result.id %}"
+                class="view-button"
+              >
+                View Details
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">
+          <p>No results found for "{{ query }}"</p>
+        </div>
+        {% endif %} {% else %}
+        <div class="initial-message">
+          <p>Enter a search term to find products</p>
+        </div>
+        {% endif %}
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 My Shop</p>
+    </footer>
+  </body>
+</html>
