@@ -10,8 +10,6 @@ def vector_search(query):
         formatted_results = []
         if query:
             results = db.search_similar(query, 3)
-            print(f"Search results: {results}")
-
             if results:
                 # Get the inner lists
                 ids = results["ids"][0] if results["ids"] else []
@@ -30,7 +28,6 @@ def vector_search(query):
                         }
                     )
 
-        print(f"Formatted results: {formatted_results}")
         return formatted_results
     except Exception as e:
         print(f"Error in vector search: {str(e)}")

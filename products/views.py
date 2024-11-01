@@ -31,12 +31,29 @@ def product_search(request):
 def product_chat(request):
     if request.method == "POST":
         message = request.POST.get("message", "")
-        topic = ai.identify_topic(query=message)
+        history = request.POST.get("history", "")
+
+        if history:
+            message_with_history = f"Previous Questions for context - {history}\n\nCurrent Question: {message}"
+        else:
+            message_with_history = message
+        print(message_with_history)
+        topic = ai.identify_topic(query=message_with_history)
         relevant_passage = vector_search(topic)
-        chat_reply = ai.get_sales_chat_reply(message, relevant_passage)
+        print(relevant_passage)
+        image = relevant_passage[0]["image_url"]
+        id = relevant_passage[0]["id"]
+        chat_reply = ai.get_sales_chat_reply(message_with_history, relevant_passage)
         processed_response = f"Received your message: {chat_reply}"
 
-        return JsonResponse({"status": "success", "response": processed_response})
+        return JsonResponse(
+            {
+                "status": "success",
+                "response": processed_response,
+                "image": image,
+                "idlink": id,
+            }
+        )
 
     return render(
         request,

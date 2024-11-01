@@ -22,7 +22,7 @@ class GeminiClient:
     def __init__(self):
         if self._initialized:
             return
-        api_key = ""
+        api_key = "AIzaSyCadPuPUQvtH-NsETbzmgooO9OT2NkAt1s"
 
         if not api_key:
             raise ValueError(
@@ -38,13 +38,6 @@ class GeminiClient:
             raise
 
     def identify_topic(self, query: str) -> str:
-        """
-        Identifies the product topic from a given query.
-        Args:
-            query (str): The input query/sentence to analyze
-        Returns:
-            str: The identified product topic or None if extraction fails
-        """
         try:
             prompt = (
                 "From the given sentence identify the topic of discussion. "
@@ -81,8 +74,7 @@ class GeminiClient:
             "Answer the question as if you are a human salesman......end every response with a question to help the user further.....example volunteer extra information.....volunteer to compare the products and provide the best\n\n"
             f"QUESTION: '{query}'\n"
             f"PASSAGE: '{relevant_passage}'\n\n"
-            "ANSWER:"
         )
-
+        logger.info(relevant_passage)
         response = self.model.generate_content(prompt)
         return response._result.candidates[0].content.parts[0].text.strip()

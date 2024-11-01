@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'products/styles.css' %}" />
     <style>
       .chat-container {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 20px auto;
         padding: 20px;
         background: white;
@@ -17,7 +17,7 @@
       }
 
       .messages-container {
-        height: 400px;
+        height: 600px;
         overflow-y: auto;
         margin-bottom: 20px;
         padding: 15px;
@@ -29,6 +29,19 @@
         margin-bottom: 15px;
         padding: 10px;
         border-radius: 8px;
+      }
+
+      .message-content {
+        margin-bottom: 10px;
+      }
+
+      .message-image {
+        width: 400px;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: block;
       }
 
       .user-message {
@@ -98,6 +111,7 @@
           action="{% url 'product_chat' %}"
           class="chat-form"
           id="chatForm"
+          data-product-url="{% url 'product_detail' pk=0 %}"
         >
           {% csrf_token %}
           <input
@@ -118,6 +132,9 @@
     </footer>
 
     <script>
+      // Add this at the start of your script
+      let chatHistory = [];
+
       document
         .getElementById("chatForm")
         .addEventListener("submit", function (e) {
@@ -128,8 +145,22 @@
           const statusDiv = document.getElementById("response-status");
           const messagesContainer = document.getElementById("messages");
 
-          // Add user message to the chat immediately
+          // Get the current message
           const userMessage = formData.get("message");
+
+          // Create FormData with current message and chat history
+          const updatedFormData = new FormData();
+          updatedFormData.append("message", userMessage);
+
+          // Add chat history if it exists
+          if (chatHistory.length > 0) {
+            const historyString = chatHistory
+              .map((entry) => `Q: ${entry.question}\nA: ${entry.answer}`)
+              .join("\n\n");
+            updatedFormData.append("history", historyString);
+          }
+
+          // Add user message to the chat immediately
           const userMessageDiv = document.createElement("div");
           userMessageDiv.className = "message user-message";
           userMessageDiv.textContent = userMessage;
@@ -144,7 +175,7 @@
           // Send to backend
           fetch('{% url "product_chat" %}', {
             method: "POST",
-            body: formData,
+            body: updatedFormData,
             headers: {
               "X-CSRFToken": document.querySelector(
                 "[name=csrfmiddlewaretoken]"
@@ -153,10 +184,34 @@
           })
             .then((response) => response.json())
             .then((data) => {
-              // Add bot response to the chat
+              // Create bot message container
               const botMessageDiv = document.createElement("div");
               botMessageDiv.className = "message bot-message";
-              botMessageDiv.textContent = data.response;
+
+              // Add text response
+              const textDiv = document.createElement("div");
+              textDiv.className = "message-content";
+              textDiv.textContent = data.response;
+              botMessageDiv.appendChild(textDiv);
+
+              // Add current Q&A to history
+              chatHistory.push({
+                question: userMessage,
+                answer: data.response,
+              });
+
+              if (data.image) {
+                const linkWrapper = document.createElement("a");
+                linkWrapper.href = `/products/product/${data.idlink}/`;
+
+                const img = document.createElement("img");
+                img.src = data.image;
+                img.className = "message-image";
+                img.alt = "Product Image";
+
+                linkWrapper.appendChild(img);
+                botMessageDiv.appendChild(linkWrapper);
+              }
               messagesContainer.appendChild(botMessageDiv);
 
               // Scroll to bottom again
