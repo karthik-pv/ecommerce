@@ -3,7 +3,7 @@ from .models import Product
 from .utils import vector_search
 from .vector_db import ChromaDBSingleton
 from django.http import JsonResponse
-from .ai_model import GeminiClient
+from .updated_ai_model import GeminiClient
 
 ai = GeminiClient()
 
@@ -32,7 +32,7 @@ def product_chat(request):
     if request.method == "POST":
         message = request.POST.get("message", "")
         history = request.POST.get("history", "")
-
+        print(history)
         if history:
             message_with_history = f"Previous Questions for context - {history}\n\nCurrent Question: {message}"
         else:
@@ -43,8 +43,9 @@ def product_chat(request):
         print(relevant_passage)
         image = relevant_passage[0]["image_url"]
         id = relevant_passage[0]["id"]
-        chat_reply = ai.get_sales_chat_reply(message_with_history, relevant_passage)
+        chat_reply = ai.get_sales_chat_reply(message, relevant_passage)
         processed_response = f"Received your message: {chat_reply}"
+        print(ai.cart)
 
         return JsonResponse(
             {

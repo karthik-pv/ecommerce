@@ -11,6 +11,7 @@ class GeminiClient:
     _instance = None
     _lock = threading.Lock()
     _initialized = False
+    cart = []
 
     def __new__(cls):
         if cls._instance is None:
@@ -22,7 +23,7 @@ class GeminiClient:
     def __init__(self):
         if self._initialized:
             return
-        api_key = ""
+        api_key = "AIzaSyCadPuPUQvtH-NsETbzmgooO9OT2NkAt1s"
 
         if not api_key:
             raise ValueError(
@@ -31,11 +32,18 @@ class GeminiClient:
         genai.configure(api_key=api_key)
 
         try:
-            self.model = genai.GenerativeModel("gemini-pro")
+            self.model = genai.GenerativeModel(
+                model_name="gemini-pro", tools=[self.add_to_cart]
+            )
             self._initialized = True
         except Exception as e:
             logger.error(f"Error initializing Gemini models: {str(e)}")
             raise
+
+    def add_to_cart(self, product_id: int, quantity: int):
+        """add item to cart using product_id and the quantity"""
+        self.cart.append({product_id, quantity})
+        print(self.cart)
 
     def identify_topic(self, query: str) -> str:
         try:
@@ -54,7 +62,6 @@ class GeminiClient:
             if hasattr(response, "text"):
                 return response.text.strip()
 
-            # Fallback for different response structure
             return response._result.candidates[0].content.parts[0].text.strip()
 
         except Exception as e:
